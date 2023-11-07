@@ -59,8 +59,19 @@ public class DBPedia_Zenodo_BookXMLReader extends XMLMatchableReader<DBPedia_Zen
 				LocalDateTime dt = LocalDateTime.parse(date, formatter);
 				book.setPublishDate(dt);
 			}
+			else if(date == null || date.isEmpty()){
+				DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+						.appendPattern("yyyy-MM-dd")
+						.parseDefaulting(ChronoField.CLOCK_HOUR_OF_DAY, 0)
+						.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+						.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+						.toFormatter(Locale.ENGLISH);
+				LocalDateTime dt = LocalDateTime.parse("1970-01-01", formatter);
+				book.setPublishDate(dt);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 		book.setDescription(getValueFromChildElement(node, "description"));
