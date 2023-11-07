@@ -8,6 +8,7 @@ import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.Bo
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator2Years;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorJaccard;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_BookXMLReader;
 //import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.MovieXMLReader;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEngine;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEvaluator;
@@ -48,9 +49,9 @@ public class IR_using_linear_combination
 		// loading data
 		logger.info("*\tLoading datasets\t*");
 		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataAcademyAwards = new HashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/input/academy_awards.xml"), "/movies/movie", dataAcademyAwards);
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/academy_awards.xml"), "/movies/movie", dataAcademyAwards);
 		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataActors = new HashedDataSet<>();
-		new MovieXMLReader().loadFromXML(new File("data/input/actors.xml"), "/movies/movie", dataActors);
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/actors.xml"), "/movies/movie", dataActors);
 
 		// load the gold standard (test set)
 		logger.info("*\tLoading gold standard\t*");

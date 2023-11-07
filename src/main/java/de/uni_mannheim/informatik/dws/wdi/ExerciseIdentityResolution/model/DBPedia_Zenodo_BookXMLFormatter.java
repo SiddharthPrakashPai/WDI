@@ -40,7 +40,7 @@ public class DBPedia_Zenodo_BookXMLFormatter extends XMLFormatter<DBPedia_Zenodo
 		book.appendChild(createTextElement("publishDate", record
 				.getPublishDate().toString(), doc));
 
-		book.appendChild(createGenresElement(record, doc));
+		// book.appendChild(createGenresElement(record, doc));
 
 		return book;
 	}
@@ -52,15 +52,15 @@ public class DBPedia_Zenodo_BookXMLFormatter extends XMLFormatter<DBPedia_Zenodo
 		return elem;
 	}
 
-	protected Element createGenresElement(DBPedia_Zenodo_Book record, Document doc) {
-		Element actorRoot = actorFormatter.createRootElement(doc);
+	// protected Element createGenresElement(DBPedia_Zenodo_Book record, Document doc) {
+	// 	Element actorRoot = actorFormatter.createRootElement(doc);
 
-		for (Zenodo_Book a : record.getGenres()) {
-			actorRoot.appendChild(actorFormatter
-					.createElementFromRecord(a, doc));
-		}
+	// 	for (Zenodo_Book a : record.getGenres()) {
+	// 		actorRoot.appendChild(actorFormatter
+	// 				.createElementFromRecord(a, doc));
+	// 	}
 
-		return actorRoot;
-	}
+	// 	return actorRoot;
+	// }
 
 }
