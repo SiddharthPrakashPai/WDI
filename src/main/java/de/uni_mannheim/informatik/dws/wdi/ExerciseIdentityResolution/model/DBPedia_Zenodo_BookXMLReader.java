@@ -36,7 +36,7 @@ public class DBPedia_Zenodo_BookXMLReader extends XMLMatchableReader<DBPedia_Zen
 	
 	@Override
 	public DBPedia_Zenodo_Book createModelFromElement(Node node, String provenanceInfo) {
-		String id = getValueFromChildElement(node, "id");
+		String id = node.getAttributes().getNamedItem("id").getNodeValue();
 
 		// create the object with id and provenance information
 		DBPedia_Zenodo_Book book = new DBPedia_Zenodo_Book(id, provenanceInfo);
