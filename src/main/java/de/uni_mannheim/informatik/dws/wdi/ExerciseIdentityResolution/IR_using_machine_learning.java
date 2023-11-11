@@ -82,41 +82,40 @@ public class IR_using_machine_learning {
 		logger.info(String.format("Matching rule is:\n%s", matchingRule.getModelDescription()));
 
 		
-		
-		  // create a blocker (blocking strategy)
-		  StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator()); 
+		// create a blocker (blocking strategy)
+		StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator()); 
 //		  SortedNeighbourhoodBlocker<Movie, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new MovieBlockingKeyByDecadeGenerator(), 1); 
-		  blocker.collectBlockSizeData("data/output/debugResultsBlocking_DBPedia_Zenodo.csv", 100);
-		 
+		blocker.collectBlockSizeData("data/output/debugResultsBlocking_DBPedia_Zenodo.csv", 100);
+		
 
-		  // Initialize Matching Engine 
-		  MatchingEngine<DBPedia_Zenodo_Book, Attribute> engine = new MatchingEngine<>();
-		  
-		  // Execute the matching 
-		  logger.info("*\tRunning identity resolution\t*");
-		  Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences =
-		  engine.runIdentityResolution( dataDBPedia, dataZenodo, null, matchingRule,blocker);
-		  
-		  // write the correspondences to the output file 
-		  new CSVCorrespondenceFormatter().writeCSV(new
-		  File("data/output/DBPedia_Zenodo_correspondences.csv"), correspondences);
-		  
-		  // load the gold standard (test set)
-		  logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
-		  MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
-		  "data/goldstandard/DBPedia_Zenodo_GS_test.csv"));
-		  
-		  // evaluate your result 
-		  logger.info("*\tEvaluating result\t*");
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute> evaluator = new
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute>(); Performance perfTest =
-		  evaluator.evaluateMatching(correspondences, gsTest);
-		  
-		  // print the evaluation result 
-		  logger.info("DBPedia <-> Zenodo");
-		  logger.info(String.format( "Precision: %.4f",perfTest.getPrecision()));
-		  logger.info(String.format( "Recall: %.4f", perfTest.getRecall()));
-		  logger.info(String.format( "F1: %.4f",perfTest.getF1()));
+		// Initialize Matching Engine 
+		MatchingEngine<DBPedia_Zenodo_Book, Attribute> engine = new MatchingEngine<>();
+		
+		// Execute the matching 
+		logger.info("*\tRunning identity resolution\t*");
+		Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences =
+		engine.runIdentityResolution( dataDBPedia, dataZenodo, null, matchingRule,blocker);
+		
+		// write the correspondences to the output file 
+		new CSVCorrespondenceFormatter().writeCSV(new
+		File("data/output/DBPedia_Zenodo_correspondences.csv"), correspondences);
+		
+		// load the gold standard (test set)
+		logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
+		MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
+		"data/goldstandard/DBPedia_Zenodo_GS_test.csv"));
+		
+		// evaluate your result 
+		logger.info("*\tEvaluating result\t*");
+		MatchingEvaluator<DBPedia_Zenodo_Book, Attribute> evaluator = new
+		MatchingEvaluator<DBPedia_Zenodo_Book, Attribute>(); Performance perfTest =
+		evaluator.evaluateMatching(correspondences, gsTest);
+		
+		// print the evaluation result 
+		logger.info("DBPedia <-> Zenodo");
+		logger.info(String.format( "Precision: %.4f",perfTest.getPrecision()));
+		logger.info(String.format( "Recall: %.4f", perfTest.getRecall()));
+		logger.info(String.format( "F1: %.4f",perfTest.getF1()));
 		 
 		System.out.println("Done");
 	}
