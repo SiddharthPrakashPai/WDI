@@ -39,9 +39,17 @@ public class BookTitleComparatorJaccard implements Comparator<DBPedia_Zenodo_Boo
 			DBPedia_Zenodo_Book record1,
 			DBPedia_Zenodo_Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
-		
+
+		// Preprocessing
 		String s1 = record1.getTitle();
 		String s2 = record2.getTitle();
+		// Delete info between parenthesis (for Goodreads books)
+		if (s1 != null) {
+			s1 = s1.replaceAll("\\([^)]*\\)", "").toLowerCase();
+		}
+		if (s2 != null) {
+			s2 = s2.replaceAll("\\([^)]*\\)", "").toLowerCase();
+		}
     	
     	double similarity = sim.calculate(s1, s2);
     	

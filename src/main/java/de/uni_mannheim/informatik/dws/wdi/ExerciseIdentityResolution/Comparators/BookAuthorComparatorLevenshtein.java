@@ -31,10 +31,19 @@ public class BookAuthorComparatorLevenshtein implements Comparator<DBPedia_Zenod
 			DBPedia_Zenodo_Book record1,
 			DBPedia_Zenodo_Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
-		
+
+		// 1. Preprocessing
 		String s1 = record1.getAuthor();
 		String s2 = record2.getAuthor();
-    	
+		// 1.a Eliminate commas
+		// 1.b Replace underscores for spaces (for Dbpedia authors)
+		// 1.c Eliminate info between parenthesis (for Goodread's authors)
+		if (s1 != null) {
+			s1 = s1.replace(",", "").replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+		}
+		if (s2 != null) {
+			s2 = s2.replace(",", "").replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+		}
     	double similarity = sim.calculate(s1, s2);
     	
 		if(this.comparisonLog != null){
