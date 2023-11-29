@@ -45,23 +45,23 @@ public class IR_using_linear_combination
 	
     public static void main( String[] args ) throws Exception
     {
-		String firstDs = "Zenodo";
-		String secondDs = "Wikipedia";
+		String firstDsName = "Zenodo";
+		String secondDsName = "Wikipedia";
 
 		// loading data
 		logger.info("*\tLoading datasets\t*");
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataFirstDs = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + firstDs + "_books_schema.xml"),
-				"/books/book", dataFirstDs);
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataSecondDs= new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + secondDs + "_books_schema.xml"),
-				"/books/book", dataSecondDs);
+		HashedDataSet<DBPedia_Zenodo_Book, Attribute> firstDs = new HashedDataSet<>();
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + firstDsName + "_books_schema.xml"),
+				"/books/book", firstDs);
+		HashedDataSet<DBPedia_Zenodo_Book, Attribute> secondDs = new HashedDataSet<>();
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + secondDsName + "_books_schema.xml"),
+				"/books/book", secondDs);
 
 		// load the gold standard (test set)
 		logger.info("*\tLoading gold standard\t*");
 		MatchingGoldStandard gsTest = new MatchingGoldStandard();
 		gsTest.loadFromCSVFile(new File(
-				"data/goldstandard/" + firstDs + "_" + secondDs + "_GS_test.csv"));
+				"data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test.csv"));
 
 		// create a matching rule
 		LinearCombinationMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new LinearCombinationMatchingRule<>(
@@ -87,7 +87,7 @@ public class IR_using_linear_combination
 		// Execute the matching
 		logger.info("*\tRunning identity resolution\t*");
 		Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences = engine.runIdentityResolution(
-				dataFirstDs, dataSecondDs, null, matchingRule,
+				firstDs, secondDs, null, matchingRule,
 				blocker);
 
 		// Create a top-1 global matching
@@ -99,7 +99,7 @@ public class IR_using_linear_combination
 //		 correspondences = maxWeight.getResult();
 
 		// write the correspondences to the output file
-		new CSVCorrespondenceFormatter().writeCSV(new File("data/output/lc_" + firstDs + "_" + secondDs + "_correspondences.csv"),
+		new CSVCorrespondenceFormatter().writeCSV(new File("data/output/lc_" + firstDsName + "_" + secondDsName + "_correspondences.csv"),
 				correspondences);
 		
 		logger.info("*\tEvaluating result\t*");
@@ -109,7 +109,7 @@ public class IR_using_linear_combination
 				gsTest);
 
 		// print the evaluation result
-		logger.info(firstDs + " <-> " + secondDs);
+		logger.info(firstDsName + " <-> " + secondDsName);
 		logger.info(String.format(
 				"Precision: %.4f",perfTest.getPrecision()));
 		logger.info(String.format(
