@@ -44,25 +44,29 @@ public class IR_using_machine_learning {
 	private static final Logger logger = WinterLogManager.activateLogger("default");
 
 	public static void main(String[] args) throws Exception {
-		
+
+		String first_ds = "Zenodo";
+		String second_ds = "Wikipedia";
+
 		// loading data
 		logger.info("*\tLoading datasets\t*");
 		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataDBPedia = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/DBPedia_books_schema.xml"), "/books/book",
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + first_ds + "_books_schema.xml"), "/books/book",
 				dataDBPedia);
 		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataZenodo = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/Zenodo_books_schema.xml"), "/books/book",
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + second_ds + "_books_schema.xml"), "/books/book",
 				dataZenodo);
 
 		// load the training set
 		MatchingGoldStandard gsTraining = new MatchingGoldStandard();
-		gsTraining.loadFromCSVFile(new File("data/goldstandard/DBPedia_Zenodo_GS_train.csv"));
+		gsTraining.loadFromCSVFile(new File("data/goldstandard/" + first_ds + "_" + second_ds + "_GS_train.csv"));
 
 		// create a matching rule
 		String options[] = new String[] { "-S" };
 		String modelType = "SimpleLogistic"; // use a logistic regression
 		WekaMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new WekaMatchingRule<>(0.7, modelType, options);
-		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule_DBPedia_Zenodo.csv", 1000, gsTraining);
+		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule_" + first_ds + "_" + second_ds + ".csv",
+				1000, gsTraining);
 
 		// add comparators
 		matchingRule.addComparator(new BookTitleComparatorEqual());
@@ -72,7 +76,6 @@ public class IR_using_machine_learning {
 		matchingRule.addComparator(new BookPublishDateComparator10Years());
 		matchingRule.addComparator(new BookAuthorComparatorJaccard());
 		matchingRule.addComparator(new BookAuthorComparatorLevenshtein());
-		matchingRule.addComparator(new BookAuthorComparatorLowerCaseJaccard());
 		matchingRule.addComparator(new BookIsbnComparator());
 
 		// train the matching rule's model
@@ -86,7 +89,7 @@ public class IR_using_machine_learning {
 		  // create a blocker (blocking strategy)
 		  StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator()); 
 //		  SortedNeighbourhoodBlocker<Movie, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new MovieBlockingKeyByDecadeGenerator(), 1); 
-		  blocker.collectBlockSizeData("data/output/debugResultsBlocking_DBPedia_Zenodo.csv", 100);
+		  blocker.collectBlockSizeData("data/output/debugResultsBlocking_" + first_ds + "_" + second_ds + ".csv", 100);
 		 
 
 		  // Initialize Matching Engine 
@@ -99,21 +102,21 @@ public class IR_using_machine_learning {
 		  
 		  // write the correspondences to the output file 
 		  new CSVCorrespondenceFormatter().writeCSV(new
-		  File("data/output/DBPedia_Zenodo_correspondences.csv"), correspondences);
+		  File("data/output/" + first_ds + "_" + second_ds + "_correspondences.csv"), correspondences);
 		  
 		  // load the gold standard (test set)
 		  logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
 		  MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
-		  "data/goldstandard/DBPedia_Zenodo_GS_test.csv"));
+		  "data/goldstandard/" + first_ds + "_" + second_ds + "_GS_test.csv"));
 		  
-		  // evaluate your result 
+		  // evaluate your result `
 		  logger.info("*\tEvaluating result\t*");
 		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute> evaluator = new
 		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute>(); Performance perfTest =
 		  evaluator.evaluateMatching(correspondences, gsTest);
 		  
 		  // print the evaluation result 
-		  logger.info("DBPedia <-> Zenodo");
+		  logger.info(first_ds + " <-> " + second_ds);
 		  logger.info(String.format( "Precision: %.4f",perfTest.getPrecision()));
 		  logger.info(String.format( "Recall: %.4f", perfTest.getRecall()));
 		  logger.info(String.format( "F1: %.4f",perfTest.getF1()));
