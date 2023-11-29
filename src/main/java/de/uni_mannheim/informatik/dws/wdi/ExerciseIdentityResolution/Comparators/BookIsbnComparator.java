@@ -30,10 +30,8 @@ public class BookIsbnComparator implements Comparator<DBPedia_Zenodo_Book, Attri
     	
 		if(this.comparisonLog != null){
 			this.comparisonLog.setComparatorName(getClass().getName());
-		
 			this.comparisonLog.setRecord1Value(s1);
 			this.comparisonLog.setRecord2Value(s2);
-    	
 			this.comparisonLog.setSimilarity(Double.toString(similarity));
 		}
 		return similarity;

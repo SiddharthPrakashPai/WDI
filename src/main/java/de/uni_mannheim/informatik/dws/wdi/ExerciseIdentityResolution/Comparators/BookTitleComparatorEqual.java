@@ -34,9 +34,14 @@ public class BookTitleComparatorEqual implements Comparator<DBPedia_Zenodo_Book,
 			DBPedia_Zenodo_Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
-		// Preprocessing
     	String s1 = record1.getTitle();
 		String s2 = record2.getTitle();
+		if(this.comparisonLog != null){
+			this.comparisonLog.setComparatorName(getClass().getName());
+			this.comparisonLog.setRecord1Value(s1);
+			this.comparisonLog.setRecord2Value(s2);
+		}
+		// Preprocessing
 		// Delete info between parenthesis (for Goodreads books)
 		if (s1 != null) {
 			s1 = s1.replaceAll("\\([^)]*\\)", "").toLowerCase();
@@ -47,11 +52,8 @@ public class BookTitleComparatorEqual implements Comparator<DBPedia_Zenodo_Book,
     	double similarity = sim.calculate(s1, s2);
     	
 		if(this.comparisonLog != null){
-			this.comparisonLog.setComparatorName(getClass().getName());
-		
-			this.comparisonLog.setRecord1Value(s1);
-			this.comparisonLog.setRecord2Value(s2);
-    	
+			this.comparisonLog.setRecord1PreprocessedValue(s1);
+			this.comparisonLog.setRecord2PreprocessedValue(s2);
 			this.comparisonLog.setSimilarity(Double.toString(similarity));
 		}
 		return similarity;

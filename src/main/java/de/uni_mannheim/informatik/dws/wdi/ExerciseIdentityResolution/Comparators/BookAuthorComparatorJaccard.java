@@ -32,35 +32,39 @@ public class BookAuthorComparatorJaccard implements Comparator<DBPedia_Zenodo_Bo
 			DBPedia_Zenodo_Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
-		// 1. Preprocessing
+
 		String s1 = record1.getAuthor();
 		String s2 = record2.getAuthor();
-		// 1.a Eliminate commas
-		// 1.b Replace underscores for spaces (for Dbpedia authors)
-		// 1.c Eliminate info between parenthesis (for Goodread's authors)
+		if(this.comparisonLog != null){
+			this.comparisonLog.setComparatorName(getClass().getName());
+			this.comparisonLog.setRecord1Value(s1);
+			this.comparisonLog.setRecord2Value(s2);
+		}
+
+		// 1. Preprocessing
+		// 1.a Replace underscores for spaces (for Dbpedia authors)
+		// 1.b Eliminate info between parenthesis (for Goodread's authors)
 		if (s1 != null) {
-			s1 = s1.replace(",", "").replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+			s1 = s1.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
 		}
 		if (s2 != null) {
-			s2 = s2.replace(",", "").replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+			s2 = s2.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
 		}
+
 		// 2. Calculate similarity
 		double similarity = sim.calculate(s1, s2);
 
 		// 3. Postprocessing
-		int postSimilarity = 1;
+		double postSimilarity = 1.0;
 		if (similarity <= 0.3) {
-			postSimilarity = 0;
+			postSimilarity = 0.0;
 		}
 
 		postSimilarity *= similarity;
 		
 		if(this.comparisonLog != null){
-			this.comparisonLog.setComparatorName(getClass().getName());
-		
-			this.comparisonLog.setRecord1Value(s1);
-			this.comparisonLog.setRecord2Value(s2);
-    	
+			this.comparisonLog.setRecord1PreprocessedValue(s1);
+			this.comparisonLog.setRecord2PreprocessedValue(s2);
 			this.comparisonLog.setSimilarity(Double.toString(similarity));
 			this.comparisonLog.setPostprocessedSimilarity(Double.toString(postSimilarity));
 		}
