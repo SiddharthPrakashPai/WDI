@@ -49,10 +49,8 @@ public class BookTitleComparatorJaccard implements Comparator<DBPedia_Zenodo_Boo
 			this.comparisonLog.setRecord2Value(s2);
 		}
 		// Delete info between parenthesis (for Goodreads books)
-		if (s1 != null) {
+		if (s1 != null && s2 != null) {
 			s1 = s1.replaceAll("\\([^)]*\\)", "").toLowerCase();
-		}
-		if (s2 != null) {
 			s2 = s2.replaceAll("\\([^)]*\\)", "").toLowerCase();
 		}
     	

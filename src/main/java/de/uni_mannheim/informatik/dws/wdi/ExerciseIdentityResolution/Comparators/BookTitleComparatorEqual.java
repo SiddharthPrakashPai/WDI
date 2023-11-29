@@ -43,12 +43,11 @@ public class BookTitleComparatorEqual implements Comparator<DBPedia_Zenodo_Book,
 		}
 		// Preprocessing
 		// Delete info between parenthesis (for Goodreads books)
-		if (s1 != null) {
+		if (s1 != null && s2 != null) {
 			s1 = s1.replaceAll("\\([^)]*\\)", "").toLowerCase();
-		}
-		if (s2 != null) {
 			s2 = s2.replaceAll("\\([^)]*\\)", "").toLowerCase();
 		}
+
     	double similarity = sim.calculate(s1, s2);
     	
 		if(this.comparisonLog != null){
