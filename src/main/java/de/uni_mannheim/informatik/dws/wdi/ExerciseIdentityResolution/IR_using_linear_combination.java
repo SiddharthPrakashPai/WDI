@@ -9,7 +9,6 @@ import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorJaccard;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_BookXMLReader;
-//import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.MovieXMLReader;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEngine;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEvaluator;
 //import de.uni_mannheim.informatik.dws.winter.matching.algorithms.MaximumBipartiteMatchingAlgorithm;
@@ -46,18 +45,23 @@ public class IR_using_linear_combination
 	
     public static void main( String[] args ) throws Exception
     {
+		String firstDs = "Zenodo";
+		String secondDs = "Wikipedia";
+
 		// loading data
 		logger.info("*\tLoading datasets\t*");
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataAcademyAwards = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/academy_awards.xml"), "/movies/movie", dataAcademyAwards);
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataActors = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/actors.xml"), "/movies/movie", dataActors);
+		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataFirstDs = new HashedDataSet<>();
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + firstDs + "_books_schema.xml"),
+				"/books/book", dataFirstDs);
+		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataSecondDs= new HashedDataSet<>();
+		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + secondDs + "_books_schema.xml"),
+				"/books/book", dataSecondDs);
 
 		// load the gold standard (test set)
 		logger.info("*\tLoading gold standard\t*");
 		MatchingGoldStandard gsTest = new MatchingGoldStandard();
 		gsTest.loadFromCSVFile(new File(
-				"data/goldstandard/gs_academy_awards_2_actors_test.csv"));
+				"data/goldstandard/" + firstDs + "_" + secondDs + "_GS_test.csv"));
 
 		// create a matching rule
 		LinearCombinationMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new LinearCombinationMatchingRule<>(
@@ -83,7 +87,7 @@ public class IR_using_linear_combination
 		// Execute the matching
 		logger.info("*\tRunning identity resolution\t*");
 		Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences = engine.runIdentityResolution(
-				dataAcademyAwards, dataActors, null, matchingRule,
+				dataFirstDs, dataSecondDs, null, matchingRule,
 				blocker);
 
 		// Create a top-1 global matching
@@ -95,7 +99,8 @@ public class IR_using_linear_combination
 //		 correspondences = maxWeight.getResult();
 
 		// write the correspondences to the output file
-		new CSVCorrespondenceFormatter().writeCSV(new File("data/output/academy_awards_2_actors_correspondences.csv"), correspondences);		
+		new CSVCorrespondenceFormatter().writeCSV(new File("data/output/lc_" + firstDs + "_" + secondDs + "_correspondences.csv"),
+				correspondences);
 		
 		logger.info("*\tEvaluating result\t*");
 		// evaluate your result
@@ -104,7 +109,7 @@ public class IR_using_linear_combination
 				gsTest);
 
 		// print the evaluation result
-		logger.info("Academy Awards <-> Actors");
+		logger.info(firstDs + " <-> " + secondDs);
 		logger.info(String.format(
 				"Precision: %.4f",perfTest.getPrecision()));
 		logger.info(String.format(
