@@ -19,6 +19,10 @@ import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.LevenshteinSimilarity;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class BookAuthorComparatorLevenshtein implements Comparator<DBPedia_Zenodo_Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
@@ -43,15 +47,28 @@ public class BookAuthorComparatorLevenshtein implements Comparator<DBPedia_Zenod
 		// 1. Preprocessing
 		// 1.a Replace underscores for spaces (for Dbpedia authors)
 		// 1.b Eliminate info between parenthesis (for Goodread's authors)
-		if (s1 != null) {
+		List<Double> similarities = new ArrayList<>();
+		double similarity;
+		if (s1 != null && s2 != null) {
 			s1 = s1.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
-		}
-		if (s2 != null) {
 			s2 = s2.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+			String[] authors_record1 = s1.split(",");
+			String[] authors_record2 = s2.split(",");
+			// 2. Calculate similarity between each pair of authors
+			for (String author1 : authors_record1) {
+				for (String author2 : authors_record2) {
+					similarity = sim.calculate(author1.trim(), author2.trim());
+					similarities.add(similarity);
+				}
+			}
 		}
 
-		// 2. Calculate similarity
-    	double similarity = sim.calculate(s1, s2);
+		// 2.a Obtain the final similarity
+		if (similarities.isEmpty()) {
+			similarity = sim.calculate(s1, s2);
+		} else {
+			similarity = Collections.max(similarities);
+		}
     	
 		if(this.comparisonLog != null){
 			this.comparisonLog.setRecord1PreprocessedValue(s1);
