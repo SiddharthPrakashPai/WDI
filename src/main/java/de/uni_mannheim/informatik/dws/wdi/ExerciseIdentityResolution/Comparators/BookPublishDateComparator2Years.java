@@ -17,9 +17,9 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.date.YearSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
-public class BookPublishDateComparator2Years implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookPublishDateComparator2Years implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	private YearSimilarity sim = new YearSimilarity(2);
@@ -28,8 +28,8 @@ public class BookPublishDateComparator2Years implements Comparator<DBPedia_Zenod
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
     	
     	double similarity = sim.calculate(record1.getPublishDate(), record2.getPublishDate());

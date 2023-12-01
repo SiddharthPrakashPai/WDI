@@ -11,7 +11,7 @@
  */
 package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators;
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.Comparator;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.ComparatorLogger;
 import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
@@ -20,13 +20,13 @@ import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.LevenshteinSimilarity;
 
 /**
- * {@link Comparator} for {@link DBPedia_Zenodo_Book}s based on the {@link DBPedia_Zenodo_Book#getTitle()}
+ * {@link Comparator} for {@link Book}s based on the {@link Book#getTitle()}
  * value and their {@link LevenshteinSimilarity} value.
  * 
  * @author Oliver Lehmberg (oli@dwslab.de)
  * 
  */
-public class BookTitleComparatorLevenshteinNoPp implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookTitleComparatorLevenshteinNoPp implements Comparator<Book, Attribute> {
 // Levenshtein book title comparator without any preprocessing
 	private static final long serialVersionUID = 1L;
 	private LevenshteinSimilarity sim = new LevenshteinSimilarity();
@@ -35,8 +35,8 @@ public class BookTitleComparatorLevenshteinNoPp implements Comparator<DBPedia_Ze
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
 		String s1 = record1.getTitle();

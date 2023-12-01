@@ -12,7 +12,7 @@
 package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators;
 
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.Comparator;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.ComparatorLogger;
 import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
@@ -20,7 +20,7 @@ import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.date.YearSimilarity;
 
-public class BookPublishDateComparator10Years implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookPublishDateComparator10Years implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	private YearSimilarity sim = new YearSimilarity(10);
@@ -29,8 +29,8 @@ public class BookPublishDateComparator10Years implements Comparator<DBPedia_Zeno
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
     	
     	double similarity = sim.calculate(record1.getPublishDate(), record2.getPublishDate());

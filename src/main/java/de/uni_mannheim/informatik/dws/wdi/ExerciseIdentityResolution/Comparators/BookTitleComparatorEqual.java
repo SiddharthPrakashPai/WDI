@@ -18,10 +18,10 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.EqualsSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
 
-public class BookTitleComparatorEqual implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookTitleComparatorEqual implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	private EqualsSimilarity<String> sim = new EqualsSimilarity<String>();
@@ -30,8 +30,8 @@ public class BookTitleComparatorEqual implements Comparator<DBPedia_Zenodo_Book,
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
     	String s1 = record1.getTitle();

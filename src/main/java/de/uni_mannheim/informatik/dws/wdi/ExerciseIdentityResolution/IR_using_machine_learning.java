@@ -4,10 +4,9 @@ import java.io.File;
 
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.*;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.*;
-import de.uni_mannheim.informatik.dws.winter.matching.blockers.NoBlocker;
 import org.slf4j.Logger;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_BookXMLReader;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.BookXMLReader;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEngine;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEvaluator;
 import de.uni_mannheim.informatik.dws.winter.matching.algorithms.RuleLearner;
@@ -39,16 +38,16 @@ public class IR_using_machine_learning {
 	public static void main(String[] args) throws Exception {
 
 		String firstDsName = "DBPedia";
-		String secondDsName = "Wikipedia";
+		String secondDsName = "Zenodo";
 
 		// loading data
 		// loading data
 		logger.info("*\tLoading datasets\t*");
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> firstDs = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + firstDsName + "_books_schema.xml"), "/books/book",
+		HashedDataSet<Book, Attribute> firstDs = new HashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/" + firstDsName + "_books_schema.xml"), "/books/book",
 				firstDs);
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> secondDs = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + secondDsName + "_books_schema.xml"), "/books/book",
+		HashedDataSet<Book, Attribute> secondDs = new HashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/" + secondDsName + "_books_schema.xml"), "/books/book",
 				secondDs);
 
 		// load the training set
@@ -58,9 +57,9 @@ public class IR_using_machine_learning {
 		// create a matching rule
 		String options[] = new String[] { "-S" };
 		String modelType = "SimpleLogistic"; // use a logistic regression
-		WekaMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new WekaMatchingRule<>(0.8, modelType, options);
-		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule_" + firstDsName + "_" + secondDsName + ".csv",
-				5000, gsTraining);
+		WekaMatchingRule<Book, Attribute> matchingRule = new WekaMatchingRule<>(0.7, modelType, options);
+		matchingRule.activateDebugReport("data/output/matching_rule/debugResultsMatchingRule_" + firstDsName + "_" + secondDsName + ".csv",
+				1000, gsTraining);
 
 		// add comparators
 		matchingRule.addComparator(new BookTitleComparatorEqual());
@@ -75,7 +74,7 @@ public class IR_using_machine_learning {
 
 		// train the matching rule's model
 		logger.info("*\tLearning matching rule\t*");
-		RuleLearner<DBPedia_Zenodo_Book, Attribute> learner = new RuleLearner<>();
+		RuleLearner<Book, Attribute> learner = new RuleLearner<>();
 		learner.learnMatchingRule(firstDs, secondDs, null, matchingRule, gsTraining);
 		logger.info(String.format("Matching rule is:\n%s", matchingRule.getModelDescription()));
 
@@ -83,35 +82,35 @@ public class IR_using_machine_learning {
 		
 		  // create a blocker (blocking strategy)
 		  // No blocker
-//		  NoBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new NoBlocker<>();
+//		  NoBlocker<Book, Attribute> blocker = new NoBlocker<>();
 		  // Standard Blocker
-		  StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator());
+		  StandardRecordBlocker<Book, Attribute> blocker = new StandardRecordBlocker<Book, Attribute>(new BookBlockingKeyByTitleGenerator());
 		  // Sorted Neighbourhood Blocker
-//		   SortedNeighbourhoodBlocker<DBPedia_Zenodo_Book, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new BookBlockingKeyByTitleGenerator(), 1);
-		  blocker.collectBlockSizeData("data/output/debugResultsBlocking_" + firstDsName + "_" + secondDsName + ".csv", 100);
+//		   SortedNeighbourhoodBlocker<Book, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new BookBlockingKeyByYearGenerator(), 300);
+		  blocker.collectBlockSizeData("data/output/blocking/debugResultsBlocking_" + firstDsName + "_" + secondDsName + ".csv", 100);
 
 
 		  // Initialize Matching Engine
-		  MatchingEngine<DBPedia_Zenodo_Book, Attribute> engine = new MatchingEngine<>();
+		  MatchingEngine<Book, Attribute> engine = new MatchingEngine<>();
 
 		  // Execute the matching
 		  logger.info("*\tRunning identity resolution\t*");
-		  Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences =
+		  Processable<Correspondence<Book, Attribute>> correspondences =
 		  engine.runIdentityResolution( firstDs, secondDs, null, matchingRule,blocker);
 
 		  // write the correspondences to the output file
 		  new CSVCorrespondenceFormatter().writeCSV(new
-		  File("data/output/" + firstDsName + "_" + secondDsName + "_correspondences.csv"), correspondences);
+		  File("data/output/correspondences/" + firstDsName + "_" + secondDsName + "_correspondences.csv"), correspondences);
 
 		  // load the gold standard (test set)
 		  logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
 		  MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
-		  "data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test_c.csv"));
+		  "data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test.csv"));
 
 		  // evaluate your result `
 		  logger.info("*\tEvaluating result\t*");
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute> evaluator = new
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute>(); Performance perfTest =
+		  MatchingEvaluator<Book, Attribute> evaluator = new
+		  MatchingEvaluator<Book, Attribute>(); Performance perfTest =
 		  evaluator.evaluateMatching(correspondences, gsTest);
 
 		  // print the evaluation result

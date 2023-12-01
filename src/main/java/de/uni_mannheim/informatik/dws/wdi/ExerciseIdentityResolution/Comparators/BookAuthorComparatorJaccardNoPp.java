@@ -11,7 +11,7 @@
  */
 package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators;
 
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.Comparator;
 import de.uni_mannheim.informatik.dws.winter.matching.rules.comparators.ComparatorLogger;
 import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
@@ -19,7 +19,7 @@ import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.TokenizingJaccardSimilarity;
 
-public class BookAuthorComparatorJaccardNoPp implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookAuthorComparatorJaccardNoPp implements Comparator<Book, Attribute> {
 // Jaccard comparator book author comparator without any preprocessing
 	private static final long serialVersionUID = 1L;
 	TokenizingJaccardSimilarity sim = new TokenizingJaccardSimilarity();
@@ -28,8 +28,8 @@ public class BookAuthorComparatorJaccardNoPp implements Comparator<DBPedia_Zenod
 	
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
 

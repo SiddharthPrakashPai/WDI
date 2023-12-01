@@ -17,13 +17,13 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.TokenizingJaccardSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BookAuthorComparatorJaccard implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookAuthorComparatorJaccard implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	TokenizingJaccardSimilarity sim = new TokenizingJaccardSimilarity();
@@ -32,8 +32,8 @@ public class BookAuthorComparatorJaccard implements Comparator<DBPedia_Zenodo_Bo
 	
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
 

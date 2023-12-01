@@ -17,17 +17,17 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.TokenizingJaccardSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
 /**
- * {@link Comparator} for {@link DBPedia_Zenodo_Book}s based on the {@link DBPedia_Zenodo_Book#getTitle()}
+ * {@link Comparator} for {@link Book}s based on the {@link Book#getTitle()}
  * value and their {@link TokenizingJaccardSimilarity} value.
  * 
  * @author Robert Meusel (robert@dwslab.de)
  * @author Oliver Lehmberg (oli@dwslab.de)
  * 
  */
-public class BookTitleComparatorJaccard implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookTitleComparatorJaccard implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	private TokenizingJaccardSimilarity sim = new TokenizingJaccardSimilarity();
@@ -36,8 +36,8 @@ public class BookTitleComparatorJaccard implements Comparator<DBPedia_Zenodo_Boo
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
 		// Preprocessing

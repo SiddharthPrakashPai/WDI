@@ -17,16 +17,16 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.LevenshteinSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
 /**
- * {@link Comparator} for {@link DBPedia_Zenodo_Book}s based on the {@link DBPedia_Zenodo_Book#getTitle()}
+ * {@link Comparator} for {@link Book}s based on the {@link Book#getTitle()}
  * value and their {@link LevenshteinSimilarity} value.
  * 
  * @author Oliver Lehmberg (oli@dwslab.de)
  * 
  */
-public class BookTitleComparatorLevenshtein implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+public class BookTitleComparatorLevenshtein implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	private LevenshteinSimilarity sim = new LevenshteinSimilarity();
@@ -35,8 +35,8 @@ public class BookTitleComparatorLevenshtein implements Comparator<DBPedia_Zenodo
 
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
 
 		String s1 = record1.getTitle();
