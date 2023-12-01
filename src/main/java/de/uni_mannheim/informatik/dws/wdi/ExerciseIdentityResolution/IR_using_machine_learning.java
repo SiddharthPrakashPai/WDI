@@ -2,8 +2,9 @@ package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution;
 
 import java.io.File;
 
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.*;
+import de.uni_mannheim.informatik.dws.winter.matching.blockers.NoBlocker;
 import org.slf4j.Logger;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.BookBlockingKeyByTitleGenerator;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator10Years;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator2Years;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookAuthorComparatorJaccard;
@@ -48,6 +49,7 @@ public class IR_using_machine_learning {
 		String secondDsName = "Wikipedia";
 
 		// loading data
+		// loading data
 		logger.info("*\tLoading datasets\t*");
 		HashedDataSet<DBPedia_Zenodo_Book, Attribute> firstDs = new HashedDataSet<>();
 		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/" + firstDsName + "_books_schema.xml"), "/books/book",
@@ -63,9 +65,9 @@ public class IR_using_machine_learning {
 		// create a matching rule
 		String options[] = new String[] { "-S" };
 		String modelType = "SimpleLogistic"; // use a logistic regression
-		WekaMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new WekaMatchingRule<>(0.7, modelType, options);
+		WekaMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new WekaMatchingRule<>(0.8, modelType, options);
 		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule_" + firstDsName + "_" + secondDsName + ".csv",
-				1000, gsTraining);
+				5000, gsTraining);
 
 		// add comparators
 		matchingRule.addComparator(new BookTitleComparatorEqual());
@@ -110,7 +112,7 @@ public class IR_using_machine_learning {
 		  // load the gold standard (test set)
 		  logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
 		  MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
-		  "data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test.csv"));
+		  "data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test_c.csv"));
 
 		  // evaluate your result `
 		  logger.info("*\tEvaluating result\t*");

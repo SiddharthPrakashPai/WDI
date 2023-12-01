@@ -2,11 +2,12 @@ package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution;
 
 import java.io.File;
 
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.BookBlockingKeyByYearGenerator;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.*;
+import de.uni_mannheim.informatik.dws.winter.matching.rules.LinearCombinationMatchingRuleWithPenalty;
 import org.slf4j.Logger;
 
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.BookBlockingKeyByTitleGenerator;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator2Years;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorJaccard;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
 import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_BookXMLReader;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEngine;
@@ -45,8 +46,8 @@ public class IR_using_linear_combination
 	
     public static void main( String[] args ) throws Exception
     {
-		String firstDsName = "Zenodo";
-		String secondDsName = "Wikipedia";
+		String firstDsName = "DBPedia";
+		String secondDsName = "Zenodo";
 
 		// loading data
 		logger.info("*\tLoading datasets\t*");
@@ -61,17 +62,35 @@ public class IR_using_linear_combination
 		logger.info("*\tLoading gold standard\t*");
 		MatchingGoldStandard gsTest = new MatchingGoldStandard();
 		gsTest.loadFromCSVFile(new File(
-				"data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test.csv"));
+				"data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test_c.csv"));
 
 		// create a matching rule
+
+		// Rule
 		LinearCombinationMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new LinearCombinationMatchingRule<>(
 				0.7);
-		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule.csv", 1000, gsTest);
+		// create a matching rule
+		LinearCombinationMatchingRuleWithPenalty<DBPedia_Zenodo_Book, Attribute> matchingRuleWithPenalty = new LinearCombinationMatchingRuleWithPenalty<>(0.7);
+		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule.csv", 5000, gsTest);
 		
 		// add comparators
-		matchingRule.addComparator(new BookPublishDateComparator2Years(), 0.5);
+		// Rule 1: TitleJ&AuthorL th 0.8
+//		matchingRule.addComparator(new BookTitleComparatorJaccard(), 0.6);
+//		matchingRule.addComparator(new BookAuthorComparatorLevenshtein(), 0.4);
+		// Rule 2: TitleJ&AuthorL&PublishDate&Isbn th 0.7
+//		matchingRule.addComparator(new BookTitleComparatorJaccard(), 0.5);
+//		matchingRule.addComparator(new BookAuthorComparatorLevenshtein(), 0.3);
+//		matchingRule.addComparator(new BookPublishDateComparator2Years(), 0.2);
+//		matchingRule.addComparator(new BookIsbnComparator(), 1);
+		// Rule 3: TitleJNoPp&AuthorLNoPp th 0.7
+//		matchingRule.addComparator(new BookTitleComparatorJaccardNoPp(), 0.6);
+//		matchingRule.addComparator(new BookAuthorComparatorLevenshteinNoPp(), 0.4);
+		// Rule 4: TitleJ&AuthorL&Language&Isbn
 		matchingRule.addComparator(new BookTitleComparatorJaccard(), 0.5);
-		
+		matchingRule.addComparator(new BookAuthorComparatorLevenshtein(), 0.3);
+		matchingRule.addComparator(new BookLanguageComparatorJaccard(), 0.2);
+		matchingRule.addComparator(new BookIsbnComparator(), 1);
+
 
 		// create a blocker (blocking strategy)
 		StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator());
