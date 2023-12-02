@@ -2,19 +2,11 @@ package de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution;
 
 import java.io.File;
 
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.*;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.*;
 import org.slf4j.Logger;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Blocking.BookBlockingKeyByTitleGenerator;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator10Years;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookPublishDateComparator2Years;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookAuthorComparatorJaccard;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookAuthorComparatorLevenshtein;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookAuthorComparatorLowerCaseJaccard;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorEqual;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorJaccard;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookTitleComparatorLevenshtein;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.Comparators.BookIsbnComparator;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_BookXMLReader;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.BookXMLReader;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEngine;
 import de.uni_mannheim.informatik.dws.winter.matching.MatchingEvaluator;
 import de.uni_mannheim.informatik.dws.winter.matching.algorithms.RuleLearner;
@@ -44,76 +36,85 @@ public class IR_using_machine_learning {
 	private static final Logger logger = WinterLogManager.activateLogger("default");
 
 	public static void main(String[] args) throws Exception {
-		
+
+		String firstDsName = "DBPedia";
+		String secondDsName = "Zenodo";
+
+		// loading data
 		// loading data
 		logger.info("*\tLoading datasets\t*");
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataDBPedia = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/DBPedia_books_schema.xml"), "/books/book",
-				dataDBPedia);
-		HashedDataSet<DBPedia_Zenodo_Book, Attribute> dataZenodo = new HashedDataSet<>();
-		new DBPedia_Zenodo_BookXMLReader().loadFromXML(new File("data/input/Zenodo_books_schema.xml"), "/books/book",
-				dataZenodo);
+		HashedDataSet<Book, Attribute> firstDs = new HashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/" + firstDsName + "_books_schema.xml"), "/books/book",
+				firstDs);
+		HashedDataSet<Book, Attribute> secondDs = new HashedDataSet<>();
+		new BookXMLReader().loadFromXML(new File("data/input/" + secondDsName + "_books_schema.xml"), "/books/book",
+				secondDs);
 
 		// load the training set
 		MatchingGoldStandard gsTraining = new MatchingGoldStandard();
-		gsTraining.loadFromCSVFile(new File("data/goldstandard/DBPedia_Zenodo_GS_train.csv"));
+		gsTraining.loadFromCSVFile(new File("data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_train.csv"));
 
 		// create a matching rule
 		String options[] = new String[] { "-S" };
 		String modelType = "SimpleLogistic"; // use a logistic regression
-		WekaMatchingRule<DBPedia_Zenodo_Book, Attribute> matchingRule = new WekaMatchingRule<>(0.7, modelType, options);
-		matchingRule.activateDebugReport("data/output/debugResultsMatchingRule_DBPedia_Zenodo.csv", 1000, gsTraining);
+		WekaMatchingRule<Book, Attribute> matchingRule = new WekaMatchingRule<>(0.7, modelType, options);
+		matchingRule.activateDebugReport("data/output/matching_rule/debugResultsMatchingRule_" + firstDsName + "_" + secondDsName + ".csv",
+				1000, gsTraining);
 
 		// add comparators
 		matchingRule.addComparator(new BookTitleComparatorEqual());
 		matchingRule.addComparator(new BookTitleComparatorLevenshtein());
+		matchingRule.addComparator(new BookLanguageComparatorJaccard());
 		matchingRule.addComparator(new BookTitleComparatorJaccard());
 		matchingRule.addComparator(new BookPublishDateComparator2Years());
 		matchingRule.addComparator(new BookPublishDateComparator10Years());
 		matchingRule.addComparator(new BookAuthorComparatorJaccard());
 		matchingRule.addComparator(new BookAuthorComparatorLevenshtein());
-		matchingRule.addComparator(new BookAuthorComparatorLowerCaseJaccard());
 		matchingRule.addComparator(new BookIsbnComparator());
 
 		// train the matching rule's model
 		logger.info("*\tLearning matching rule\t*");
-		RuleLearner<DBPedia_Zenodo_Book, Attribute> learner = new RuleLearner<>();
-		learner.learnMatchingRule(dataDBPedia, dataZenodo, null, matchingRule, gsTraining);
+		RuleLearner<Book, Attribute> learner = new RuleLearner<>();
+		learner.learnMatchingRule(firstDs, secondDs, null, matchingRule, gsTraining);
 		logger.info(String.format("Matching rule is:\n%s", matchingRule.getModelDescription()));
 
 		
 		
 		  // create a blocker (blocking strategy)
-		  StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute> blocker = new StandardRecordBlocker<DBPedia_Zenodo_Book, Attribute>(new BookBlockingKeyByTitleGenerator()); 
-//		  SortedNeighbourhoodBlocker<Movie, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new MovieBlockingKeyByDecadeGenerator(), 1); 
-		  blocker.collectBlockSizeData("data/output/debugResultsBlocking_DBPedia_Zenodo.csv", 100);
-		 
+		  // No blocker
+//		  NoBlocker<Book, Attribute> blocker = new NoBlocker<>();
+		  // Standard Blocker
+		  StandardRecordBlocker<Book, Attribute> blocker = new StandardRecordBlocker<Book, Attribute>(new BookBlockingKeyByTitleGenerator());
+		  // Sorted Neighbourhood Blocker
+//		   SortedNeighbourhoodBlocker<Book, Attribute, Attribute> blocker = new SortedNeighbourhoodBlocker<>(new BookBlockingKeyByYearGenerator(), 300);
+		  blocker.collectBlockSizeData("data/output/blocking/debugResultsBlocking_" + firstDsName + "_" + secondDsName + ".csv", 100);
 
-		  // Initialize Matching Engine 
-		  MatchingEngine<DBPedia_Zenodo_Book, Attribute> engine = new MatchingEngine<>();
-		  
-		  // Execute the matching 
+
+		  // Initialize Matching Engine
+		  MatchingEngine<Book, Attribute> engine = new MatchingEngine<>();
+
+		  // Execute the matching
 		  logger.info("*\tRunning identity resolution\t*");
-		  Processable<Correspondence<DBPedia_Zenodo_Book, Attribute>> correspondences =
-		  engine.runIdentityResolution( dataDBPedia, dataZenodo, null, matchingRule,blocker);
-		  
-		  // write the correspondences to the output file 
+		  Processable<Correspondence<Book, Attribute>> correspondences =
+		  engine.runIdentityResolution( firstDs, secondDs, null, matchingRule,blocker);
+
+		  // write the correspondences to the output file
 		  new CSVCorrespondenceFormatter().writeCSV(new
-		  File("data/output/DBPedia_Zenodo_correspondences.csv"), correspondences);
-		  
+		  File("data/output/correspondences/" + firstDsName + "_" + secondDsName + "_correspondences.csv"), correspondences);
+
 		  // load the gold standard (test set)
 		  logger.info("*\tLoading gold standard\t*"); MatchingGoldStandard gsTest = new
 		  MatchingGoldStandard(); gsTest.loadFromCSVFile(new File(
-		  "data/goldstandard/DBPedia_Zenodo_GS_test.csv"));
-		  
-		  // evaluate your result 
+		  "data/goldstandard/" + firstDsName + "_" + secondDsName + "_GS_test.csv"));
+
+		  // evaluate your result `
 		  logger.info("*\tEvaluating result\t*");
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute> evaluator = new
-		  MatchingEvaluator<DBPedia_Zenodo_Book, Attribute>(); Performance perfTest =
+		  MatchingEvaluator<Book, Attribute> evaluator = new
+		  MatchingEvaluator<Book, Attribute>(); Performance perfTest =
 		  evaluator.evaluateMatching(correspondences, gsTest);
-		  
-		  // print the evaluation result 
-		  logger.info("DBPedia <-> Zenodo");
+
+		  // print the evaluation result
+		  logger.info(firstDsName + " <-> " + secondDsName);
 		  logger.info(String.format( "Precision: %.4f",perfTest.getPrecision()));
 		  logger.info(String.format( "Recall: %.4f", perfTest.getRecall()));
 		  logger.info(String.format( "F1: %.4f",perfTest.getF1()));

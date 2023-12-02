@@ -17,9 +17,13 @@ import de.uni_mannheim.informatik.dws.winter.model.Correspondence;
 import de.uni_mannheim.informatik.dws.winter.model.Matchable;
 import de.uni_mannheim.informatik.dws.winter.model.defaultmodel.Attribute;
 import de.uni_mannheim.informatik.dws.winter.similarity.string.TokenizingJaccardSimilarity;
-import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.DBPedia_Zenodo_Book;
+import de.uni_mannheim.informatik.dws.wdi.ExerciseIdentityResolution.model.Book;
 
-public class BookAuthorComparatorJaccard implements Comparator<DBPedia_Zenodo_Book, Attribute> {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class BookAuthorComparatorJaccard implements Comparator<Book, Attribute> {
 
 	private static final long serialVersionUID = 1L;
 	TokenizingJaccardSimilarity sim = new TokenizingJaccardSimilarity();
@@ -28,30 +32,55 @@ public class BookAuthorComparatorJaccard implements Comparator<DBPedia_Zenodo_Bo
 	
 	@Override
 	public double compare(
-			DBPedia_Zenodo_Book record1,
-			DBPedia_Zenodo_Book record2,
+			Book record1,
+			Book record2,
 			Correspondence<Attribute, Matchable> schemaCorrespondences) {
-		
+
+
 		String s1 = record1.getAuthor();
 		String s2 = record2.getAuthor();
+		if(this.comparisonLog != null){
+			this.comparisonLog.setComparatorName(getClass().getName());
+			this.comparisonLog.setRecord1Value(s1);
+			this.comparisonLog.setRecord2Value(s2);
+		}
 
-		// calculate similarity
-		double similarity = sim.calculate(s1, s2);
+		// 1. Preprocessing
+		// 1.a Replace underscores for spaces (for Dbpedia authors)
+		// 1.b Eliminate info between parenthesis (for Goodread's authors)
+		List<Double> similarities = new ArrayList<>();
+		double similarity;
+		if (s1 != null && s2 != null) {
+			s1 = s1.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+			s2 = s2.replace("_", " ").replaceAll("\\([^)]*\\)", "").toLowerCase();
+			String[] authors_record1 = s1.split(",");
+			String[] authors_record2 = s2.split(",");
+			// 2. Calculate similarity between each pair of authors
+			for (String author1 : authors_record1) {
+				for (String author2 : authors_record2) {
+					similarity = sim.calculate(author1.trim(), author2.trim());
+					similarities.add(similarity);
+				}
+			}
+		}
+		// 2.a Obtain the final similarity
+		if (similarities.isEmpty()) {
+			similarity = sim.calculate(s1, s2);
+		} else {
+			similarity = Collections.max(similarities);
+		}
 
-		// postprocessing
-		int postSimilarity = 1;
+		// 3. Postprocessing
+		double postSimilarity = 1.0;
 		if (similarity <= 0.3) {
-			postSimilarity = 0;
+			postSimilarity = 0.0;
 		}
 
 		postSimilarity *= similarity;
 		
 		if(this.comparisonLog != null){
-			this.comparisonLog.setComparatorName(getClass().getName());
-		
-			this.comparisonLog.setRecord1Value(s1);
-			this.comparisonLog.setRecord2Value(s2);
-    	
+			this.comparisonLog.setRecord1PreprocessedValue(s1);
+			this.comparisonLog.setRecord2PreprocessedValue(s2);
 			this.comparisonLog.setSimilarity(Double.toString(similarity));
 			this.comparisonLog.setPostprocessedSimilarity(Double.toString(postSimilarity));
 		}
